@@ -31,13 +31,13 @@ class Venue(db.Model):
     __tablename__ = 'Venue'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
+    name = db.Column(db.String())
     address = db.Column(db.String(120))
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    city_id=db.Column(db.Integer,db.ForeignKey("City.id"))
+    show=db.relationship("Show",backref='venue')
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -45,17 +45,43 @@ class Artist(db.Model):
     __tablename__ = 'Artist'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
+    name = db.Column(db.String())
     phone = db.Column(db.String(120))
     genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    seeking_venue=db.Column(db.Boolean)
+    seeking_description=db.Column(db.String())
+    image_link=db.Column(db.String())
+    city_id=db.Column(db.Integer,db.ForeignKey("City.id"))
+    show=db.relationship("Show",backref='artist')
+
+
+
+
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+
+class Show(db.Model):
+  __tablename__ = 'Show'
+
+  id=db.Column(db.Integer,primary_key=True)
+  artist_id=db.Column(db.Integer,db.ForeignKey("Artist.id"))
+  venue_id=db.Column(db.Integer,db.ForeignKey("Venue.id"))
+  start_time=db.Column(db.Date)
+
+
+class City(db.Model):
+  __tablename__ = 'City'
+
+  id=db.Column(db.Integer,primary_key=True)
+  city=db.Column(db.String(120),nullable=False)
+  state=db.Column(db.String(120),nullable=False)
+  artist=db.relationship("Artist",backref='city')
+  venue=db.relationship("Venue",backref='city')
+
 
 #----------------------------------------------------------------------------#
 # Filters.
