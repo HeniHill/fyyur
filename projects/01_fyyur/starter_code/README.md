@@ -181,3 +181,7 @@ python3 app.py
 6. **Verify on the Browser**<br>
 Navigate to project homepage [http://127.0.0.1:5000/](http://127.0.0.1:5000/) or [http://localhost:5000](http://localhost:5000) 
 
+
+7. **Personal Note**<br>
+Jinja2 and Werkzeug will raise errors, to solve the errors, install Werkzeug==2.0.0 and Jinja2==3.0.1
+
