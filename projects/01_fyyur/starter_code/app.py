@@ -43,6 +43,8 @@ class Venue(db.Model):
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
+artist_genrs=db.Table('artist_genrs',db.Column('artist_id',db.Integer,db.ForeignKey('Artist.id'),primary_key=True),db.Column('genre_id',db.Integer,db.ForeignKey('Genre.id'),primary_key=True))
+
 class Artist(db.Model):
     __tablename__ = 'Artist'
 
@@ -57,6 +59,7 @@ class Artist(db.Model):
     image_link=db.Column(db.String())
     city_id=db.Column(db.Integer,db.ForeignKey("City.id"))
     show=db.relationship("Show",backref='artist')
+    genres=db.relationship('Genre',secondary=artist_genrs,backref=db.backref('artists',lazy=True))
 
 
 
@@ -83,6 +86,17 @@ class City(db.Model):
   state=db.Column(db.String(120),nullable=False)
   artist=db.relationship("Artist",backref='city')
   venue=db.relationship("Venue",backref='city')
+
+
+class Genre(db.Model):
+  __tablename__ = 'Genre'
+
+  id=db.Column(db.Integer,primary_key=True)
+  name=db.Column(db.String(120),nullable=False)
+
+
+
+
 
 
 #----------------------------------------------------------------------------#
