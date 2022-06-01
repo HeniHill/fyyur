@@ -93,7 +93,7 @@ class City(db.Model):
   city=db.Column(db.String(120),nullable=False)
   state=db.Column(db.String(120),nullable=False)
   artist=db.relationship("Artist",backref='city')
-  venue=db.relationship("Venue",backref='city')
+  venues=db.relationship("Venue",backref='city')
 
 
 class Genre(db.Model):
@@ -158,7 +158,11 @@ def venues():
       "num_upcoming_shows": 0,
     }]
   }]
-  return render_template('pages/venues.html', areas=data);
+
+  data=City.query.all()
+
+
+  return render_template('pages/venues.html', areas=data)
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
