@@ -74,8 +74,31 @@
 		{% endfor %}
 	</div>
 </section>
+<div class="row">
+	<div class="col-sm-1">
+	<a href="/venues/{{ venue.id }}/edit"><button class="btn btn-primary btn-lg">Edit</button></a>
+	</div>
+	<div class="col-sm-1">
+		<form id="form" action="/venues/{{ venue.id }}" method="delete">
+			<input type="submit" value="Delete" class="btn btn-primary btn-lg" >
+			<input type="text" id="vid" value="{{venue.id}}"  hidden="True" >
+		</form>
+	</div>
+	</div>
 
-<a href="/venues/{{ venue.id }}/edit"><button class="btn btn-primary btn-lg">Edit</button></a>
+<script>
+   document.getElementById('form').onsubmit=function(e){
+	   e.preventDefault();
+	   val=document.getElementById('vid').value;
+	   fetch(`/venues/${val}`,{
+		   method:'DELETE',
+		   headers:{'Content-Type':'application/json'}
+	   }).then(function(res){
+         console.log(res);
+		 window.location.replace('/');
+	   })
+   }
+</script>
 
 {% endblock %}
 
