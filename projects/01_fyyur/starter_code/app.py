@@ -5,7 +5,7 @@
 import json
 import dateutil.parser
 import babel
-from flask import Flask, render_template, request, Response, flash, redirect, url_for
+from flask import Flask, render_template, request, Response, flash, redirect, url_for,jsonify
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 import logging
@@ -13,6 +13,7 @@ from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
 from flask_migrate import Migrate
+import sys
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -38,13 +39,15 @@ class Venue(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String())
     address = db.Column(db.String(120))
+    city=db.Column(db.String())
+    state=db.Column(db.String())
     phone = db.Column(db.String(120))
     website=db.Column(db.String(150))
     seeking_talent=db.Column(db.Boolean)
     seeking_description=db.Column(db.String())
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
-    city_id=db.Column(db.Integer,db.ForeignKey("City.id"))
+    #city_id=db.Column(db.Integer,db.ForeignKey("City.id"))
     show=db.relationship("Show",backref='venue')
     genres=db.relationship('Genre',secondary=venue_genrs,backref=db.backref('venues',lazy=True))
 
@@ -94,7 +97,6 @@ class City(db.Model):
   city=db.Column(db.String(120),nullable=False)
   state=db.Column(db.String(120),nullable=False)
   artist=db.relationship("Artist",backref='city')
-  venues=db.relationship("Venue",backref='city')
 
 
 class Genre(db.Model):
@@ -160,7 +162,23 @@ def venues():
     }]
   }]
 
-  data=City.query.all()
+  data=[]
+  vv=[]
+
+  city=Venue.query.add_columns(Venue.city,Venue.state).distinct(Venue.city,Venue.state)
+  #res={'vv':[]}
+  venue=Venue.query.add_columns(Venue.id,Venue.name,Venue.city)
+
+
+
+  for c in city:
+    for v in venue:
+      if c.city == v.city:
+        vv.append({'id':v.id,'name':v.name})
+    data.append({'city':c.city,'state':c.state,'venues':vv})
+    vv=[]
+
+
 
 
   return render_template('pages/venues.html', areas=data)
@@ -298,13 +316,61 @@ def create_venue_form():
 def create_venue_submission():
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
+  err=False
+  v={}
+  try:
+    name = request.form['name']
+    v['name']=name
+
+    genres=request.form.getlist('genres')
+
+    gs=[]
+
+    for g in genres:
+      gs.append(Genre(name=g))
+
+
+
+    
+
+
+
+    if request.form['seeking_talent']=='y':
+      seeking_talent=True
+    else:
+      seeking_talent=False
+    venue=Venue(name=name,
+    city=request.form['city'],state=request.form['state'],
+    address=request.form['address'],phone=request.form['phone'],
+    image_link=request.form['image_link'],facebook_link=request.form['facebook_link'],
+    website=request.form['website_link'],seeking_talent=seeking_talent,
+    seeking_description=request.form['seeking_description'])
+    g=Genre(name=request.form['genres'])
+    venue.genres=gs
+    db.session.add(venue)
+    db.session.commit()
+  except:
+    v['name']=request.form['name']
+    db.session.rollback()
+    err=True
+  finally:
+    db.session.close()
+  
+  if err == False:
+    flash('Venue ' + v['name'] + ' was successfully listed!')
+  else:
+    flash('An error occurred ' + v['name'] + ' could not be listed!')
+
+
+  return render_template('pages/home.html')
+
 
   # on successful db insert, flash success
-  flash('Venue ' + request.form['name'] + ' was successfully listed!')
+  #flash('Venue ' + request.form['name'] + ' was successfully listed!')
   # TODO: on unsuccessful db insert, flash an error instead.
   # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-  return render_template('pages/home.html')
+  
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
