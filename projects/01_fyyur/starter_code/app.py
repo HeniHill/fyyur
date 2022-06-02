@@ -84,6 +84,7 @@ class Show(db.Model):
   artist_id=db.Column(db.Integer,db.ForeignKey("Artist.id"))
   venue_id=db.Column(db.Integer,db.ForeignKey("Venue.id"))
   start_time=db.Column(db.Date)
+  is_upcoming=db.Column(db.Boolean)
 
 
 class City(db.Model):
