@@ -266,7 +266,24 @@ def show_venue(venue_id):
     "past_shows_count": 1,
     "upcoming_shows_count": 1,
   }
-  data = list(filter(lambda d: d['id'] == venue_id, [data1, data2, data3]))[0]
+  #data = list(filter(lambda d: d['id'] == venue_id, [data1, data2, data3]))[0]
+
+  
+  
+  data=Venue.query.get(venue_id)
+
+  u_c=0
+  p_s=0
+  for show in data.show:
+    if show.is_upcoming==True:
+      u_c=u_c+1
+    else:
+      p_s=p_s+1
+  
+  data.upcoming_shows_count=u_c
+  data.past_shows_count=p_s
+  
+
   return render_template('pages/show_venue.html', venue=data)
 
 #  Create Venue
